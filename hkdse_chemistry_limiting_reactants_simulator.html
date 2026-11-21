@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HKDSE Chemistry: Limiting Reactants & Stoichiometry Lab</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        lab: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #0284c7;
+            border: 3px solid #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+            cursor: pointer;
+            margin-top: -8px;
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.12);
+            background: #0369a1;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+        input[type=range]:disabled::-webkit-slider-thumb {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+        
+        /* Subtle Lab Grid Background */
+        .lab-grid {
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Pulse animation for reaction sparks */
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .animate-card {
+            animation: fadeInScale 0.25s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-sky-200 selection:text-sky-900">
+
+    <!-- Top Academic Navigation Bar -->
+    <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-400 text-xl">
+                    <i class="fa-solid fa-flask-vial"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-sky-500 text-white">HKDSE Chemistry S4</span>
+                        <span class="text-xs text-slate-400 font-medium hidden md:inline">Topic III: Metals — Reacting Masses</span>
+                    </div>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white">Limiting Reactants & Stoichiometric Ratios</h1>
+                </div>
+            </div>
+
+            <!-- Mode Switcher & Reference RAM Badge -->
+            <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                <button id="btn-ram-modal" class="text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-table-cells text-sky-400"></i>
+                    <span>HKDSE RAM Values</span>
+                </button>
+                <div class="bg-slate-800 p-1 rounded-xl border border-slate-700 flex items-center">
+                    <button id="mode-explore-btn" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-600 text-white shadow-sm transition">
+                        <i class="fa-solid fa-sliders mr-1"></i> Lab Explorer
+                    </button>
+                    <button id="mode-challenge-btn" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition">
+                        <i class="fa-solid fa-trophy mr-1 text-amber-400"></i> Challenge Mode
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Laboratory Workspace -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Section 1: Reaction Preset Selector & Balanced Equation Banner -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">1. Select HKDSE Reaction System</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5" id="preset-buttons">
+                        <button data-preset="haber" class="preset-btn active-preset text-left px-3.5 py-2.5 rounded-xl border-2 border-sky-600 bg-sky-50/70 transition flex items-start gap-2.5">
+                            <span class="w-6 h-6 rounded-full bg-sky-600 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                            <div>
+                                <div class="font-bold text-sm text-slate-900">Haber Process</div>
+                                <div class="text-xs font-mono text-slate-600">N₂ + 3H₂ → 2NH₃</div>
+                            </div>
+                        </button>
+                        <button data-preset="magnesium" class="preset-btn text-left px-3.5 py-2.5 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white transition flex items-start gap-2.5">
+                            <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                            <div>
+                                <div class="font-bold text-sm text-slate-900">Combustion of Mg</div>
+                                <div class="text-xs font-mono text-slate-600">2Mg + O₂ → 2MgO</div>
+                            </div>
+                        </button>
+                        <button data-preset="carbonate" class="preset-btn text-left px-3.5 py-2.5 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white transition flex items-start gap-2.5">
+                            <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                            <div>
+                                <div class="font-bold text-sm text-slate-900">Acid-Carbonate Gas</div>
+                                <div class="text-xs font-mono text-slate-600">CaCO₃ + 2HCl → ... + CO₂</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dynamic Balanced Equation Display -->
+                <div class="bg-slate-900 text-white rounded-xl px-5 py-3.5 flex flex-col justify-center items-center lg:items-end border border-slate-800 shrink-0">
+                    <span class="text-[11px] uppercase tracking-widest text-sky-400 font-semibold mb-1">Balanced Chemical Equation</span>
+                    <div id="equation-display" class="text-lg sm:text-xl font-mono font-bold tracking-tight text-center lg:text-right">
+                        N₂(g) + 3H₂(g) → 2NH₃(g)
+                    </div>
+                    <div id="mole-ratio-badge" class="text-xs text-slate-300 mt-1 font-medium">
+                        Stoichiometric Mole Ratio: <span class="text-amber-300 font-mono font-bold">1 : 3 → 2</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Challenge Mode Banner (Hidden in Explorer Mode) -->
+        <section id="challenge-panel" class="hidden bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-2xl p-5 shadow-sm animate-card">
+            <div class="flex flex-col lg:flex-row justify-between gap-6">
+                <div class="space-y-2 max-w-xl">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-full bg-amber-500 text-white text-xs font-bold uppercase tracking-wider">Exam Practice</span>
+                        <span id="challenge-score" class="text-xs font-bold text-amber-900 bg-amber-200/70 px-2.5 py-0.5 rounded-full">Score: 0 / 0</span>
+                    </div>
+                    <h2 class="text-lg font-bold text-slate-900">Predict Before Reacting!</h2>
+                    <p id="challenge-prompt" class="text-sm text-slate-700 leading-relaxed">
+                        Suppose <strong class="font-mono text-slate-900">2.0 mol</strong> of N₂(g) is mixed with <strong class="font-mono text-slate-900">4.5 mol</strong> of H₂(g). Calculate the limiting reactant and the theoretical mass of NH₃(g) formed before running the simulation.
+                    </p>
+                    <button id="btn-new-challenge" class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 hover:text-amber-950 underline pt-1">
+                        <i class="fa-solid fa-shuffle"></i> Generate New Problem
+                    </button>
+                </div>
+
+                <!-- Student Prediction Inputs -->
+                <div class="bg-white rounded-xl p-4 border border-amber-200 shadow-sm flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">1. Limiting Reactant</label>
+                        <select id="challenge-lr-select" class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <option value="">-- Select --</option>
+                            <option value="A">Reactant A</option>
+                            <option value="B">Reactant B</option>
+                            <option value="BOTH">Exact Stoichiometric (Both)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label id="challenge-yield-label" class="block text-xs font-bold text-slate-700 mb-1">2. Mass of Product (g)</label>
+                        <input type="number" step="0.1" id="challenge-mass-input" placeholder="e.g. 51.0" class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-mono font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                    <div>
+                        <button id="btn-check-challenge" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg shadow-sm transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check-circle"></i> Check & React
+                        </button>
+                    </div>
+                    <div id="challenge-feedback" class="sm:col-span-3 hidden text-xs font-medium p-2.5 rounded-lg"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Interactive Controls + Molecular Collision Canvas -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Column: Reactant Sliders & Simulation Controls (5 Cols) -->
+            <div class="lg:col-span-5 space-y-5">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h2 class="font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-vials text-sky-600"></i>
+                            <span>Initial Reactant Quantities</span>
+                        </h2>
+                        <span class="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">1 particle = 0.5 mol</span>
+                    </div>
+
+                    <!-- Reactant A Slider -->
+                    <div class="bg-blue-50/60 border border-blue-100 rounded-xl p-4 space-y-2.5">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <span id="dot-A" class="w-4 h-4 rounded-full bg-blue-600 inline-block shadow-sm"></span>
+                                <span id="label-A" class="font-bold text-slate-900 text-sm">Nitrogen, N₂(g)</span>
+                                <span id="coeff-A-badge" class="text-[11px] font-mono bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold">Coeff: 1</span>
+                            </div>
+                            <span id="val-A" class="font-mono font-bold text-lg text-blue-700">2.0 mol</span>
+                        </div>
+                        <input type="range" id="slider-A" min="0" max="10" step="0.5" value="2.0" aria-label="Initial moles of Reactant A">
+                        <div class="flex justify-between text-[11px] text-slate-500 font-mono">
+                            <span>0.0 mol</span>
+                            <span id="mass-A-hint">Initial Mass: 56.0 g</span>
+                            <span>10.0 mol</span>
+                        </div>
+                    </div>
+
+                    <!-- Reactant B Slider -->
+                    <div class="bg-emerald-50/60 border border-emerald-100 rounded-xl p-4 space-y-2.5">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <span id="dot-B" class="w-4 h-4 rounded-full bg-emerald-600 inline-block shadow-sm"></span>
+                                <span id="label-B" class="font-bold text-slate-900 text-sm">Hydrogen, H₂(g)</span>
+                                <span id="coeff-B-badge" class="text-[11px] font-mono bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">Coeff: 3</span>
+                            </div>
+                            <span id="val-B" class="font-mono font-bold text-lg text-emerald-700">4.5 mol</span>
+                        </div>
+                        <input type="range" id="slider-B" min="0" max="10" step="0.5" value="4.5" aria-label="Initial moles of Reactant B">
+                        <div class="flex justify-between text-[11px] text-slate-500 font-mono">
+                            <span>0.0 mol</span>
+                            <span id="mass-B-hint">Initial Mass: 9.0 g</span>
+                            <span>10.0 mol</span>
+                        </div>
+                    </div>
+
+                    <!-- Simulation Action Buttons -->
+                    <div class="grid grid-cols-3 gap-2.5 pt-1">
+                        <button id="btn-start-rxn" class="col-span-2 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white font-bold py-3 px-4 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-solid fa-play"></i>
+                            <span id="btn-start-text">Start Reaction</span>
+                        </button>
+                        <button id="btn-reset-rxn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-3 rounded-xl border border-slate-300 transition flex items-center justify-center gap-1.5 text-sm">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step-by-Step HKDSE Exam Method Walkthrough -->
+                <div class="bg-slate-900 text-slate-100 rounded-2xl shadow-sm border border-slate-800 p-5 space-y-3.5">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-sm uppercase tracking-wider text-sky-400 flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            <span>HKDSE Exam Method Walkthrough</span>
+                        </h3>
+                        <span class="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">Standard Marking Scheme</span>
+                    </div>
+
+                    <ol id="exam-walkthrough-steps" class="space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed">
+                        <!-- Dynamically populated by JS -->
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Right Column: Molecular Collision Canvas + Live Stoichiometry Breakdown (7 Cols) -->
+            <div class="lg:col-span-7 space-y-5">
+                
+                <!-- Reaction Vessel Canvas Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                    <div class="px-5 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <span id="vessel-status-dot" class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                            <span id="vessel-status-text" class="text-xs font-bold uppercase tracking-wider text-slate-700">Ready — Reactants Mixed in Vessel</span>
+                        </div>
+                        <!-- Live Particle Legend -->
+                        <div id="canvas-legend" class="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-600">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Canvas Container -->
+                    <div id="canvas-wrapper" class="relative w-full h-[330px] sm:h-[370px] bg-slate-950 overflow-hidden select-none">
+                        <canvas id="reaction-canvas" class="block w-full h-full"></canvas>
+                        
+                        <!-- Live Reaction Progress Overlay Pill -->
+                        <div class="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+                            <div class="bg-slate-900/85 backdrop-blur-md border border-slate-700/80 text-white px-3 py-1.5 rounded-lg text-xs font-mono flex items-center gap-3">
+                                <span><span class="text-slate-400">Events:</span> <strong id="hud-reactions" class="text-sky-400">0</strong>/<strong id="hud-max-reactions">0</strong></span>
+                                <span class="text-slate-600">|</span>
+                                <span><span class="text-slate-400">Product Formed:</span> <strong id="hud-product-mol" class="text-amber-400">0.0 mol</strong></span>
+                            </div>
+                            <div id="hud-excess-badge" class="hidden bg-rose-950/90 backdrop-blur-md border border-rose-500/50 text-rose-200 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                                Excess particles remain unreacted!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Stoichiometric Calculation Dashboard -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-sky-600"></i>
+                            <span>Live Stoichiometric Breakdown</span>
+                        </h2>
+                        <span id="blur-hint" class="hidden text-xs font-semibold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+                            <i class="fa-solid fa-eye-slash mr-1"></i> Hidden during Challenge Mode
+                        </span>
+                    </div>
+
+                    <!-- Results Container (Can be masked during Challenge Mode before submission) -->
+                    <div id="results-dashboard" class="space-y-4 transition-all duration-300">
+                        
+                        <!-- Row 1: Mole-to-Coefficient Ratio Comparison -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div id="card-ratio-A" class="p-3.5 rounded-xl border-2 border-slate-200 bg-slate-50 transition">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-bold uppercase text-slate-500">Ratio Check: Reactant A</span>
+                                    <span id="tag-A" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">Calculating</span>
+                                </div>
+                                <div id="calc-ratio-A" class="font-mono text-sm sm:text-base font-bold text-slate-900">
+                                    2.0 mol ÷ 1 = 2.00
+                                </div>
+                            </div>
+
+                            <div id="card-ratio-B" class="p-3.5 rounded-xl border-2 border-slate-200 bg-slate-50 transition">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-bold uppercase text-slate-500">Ratio Check: Reactant B</span>
+                                    <span id="tag-B" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">Calculating</span>
+                                </div>
+                                <div id="calc-ratio-B" class="font-mono text-sm sm:text-base font-bold text-slate-900">
+                                    4.5 mol ÷ 3 = 1.50
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: 4 Key Output Metrics -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="bg-rose-50 border border-rose-200 rounded-xl p-3">
+                                <div class="text-[11px] font-bold uppercase text-rose-700 mb-1">Limiting Reactant</div>
+                                <div id="out-limiting" class="font-mono font-extrabold text-base sm:text-lg text-rose-900 truncate">H₂(g)</div>
+                                <div class="text-[11px] text-rose-600 mt-0.5">Completely consumed</div>
+                            </div>
+
+                            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                                <div class="text-[11px] font-bold uppercase text-amber-700 mb-1">Excess Remaining</div>
+                                <div id="out-excess" class="font-mono font-extrabold text-base sm:text-lg text-amber-900 truncate">0.5 mol N₂</div>
+                                <div id="out-excess-mass" class="text-[11px] text-amber-700 mt-0.5">14.0 g unreacted</div>
+                            </div>
+
+                            <div class="bg-sky-50 border border-sky-200 rounded-xl p-3">
+                                <div class="text-[11px] font-bold uppercase text-sky-700 mb-1">Product Formed</div>
+                                <div id="out-prod-mol" class="font-mono font-extrabold text-base sm:text-lg text-sky-900 truncate">3.0 mol NH₃</div>
+                                <div id="out-prod-molar" class="text-[11px] text-sky-700 mt-0.5">Molar mass: 17.0 g/mol</div>
+                            </div>
+
+                            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+                                <div class="text-[11px] font-bold uppercase text-emerald-700 mb-1">Theoretical Yield</div>
+                                <div id="out-yield-mass" class="font-mono font-extrabold text-base sm:text-lg text-emerald-900 truncate">51.0 g</div>
+                                <div id="out-yield-formula" class="text-[11px] text-emerald-700 mt-0.5">3.0 mol × 17.0 g/mol</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- HKDSE Relative Atomic Masses Reference Modal -->
+    <div id="ram-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-card">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-atom text-sky-600"></i>
+                    <span>HKDSE Relative Atomic Masses</span>
+                </h3>
+                <button id="btn-close-ram" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-600">
+                All calculations in this simulator strictly follow the official HKEAA Periodic Table values (to 1 decimal place):
+            </p>
+            <div class="grid grid-cols-2 gap-2.5 font-mono text-sm">
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex justify-between">
+                    <span class="font-bold text-slate-700">Hydrogen (H)</span>
+                    <span class="text-sky-700 font-bold">1.0</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex justify-between">
+                    <span class="font-bold text-slate-700">Carbon (C)</span>
+                    <span class="text-sky-700 font-bold">12.0</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex justify-between">
+                    <span class="font-bold text-slate-700">Nitrogen (N)</span>
+                    <span class="text-sky-700 font-bold">14.0</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex justify-between">
+                    <span class="font-bold text-slate-700">Oxygen (O)</span>
+                    <span class="text-sky-700 font-bold">16.0</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex justify-between">
+                    <span class="font-bold text-slate-700">Magnesium (Mg)</span>
+                    <span class="text-sky-700 font-bold">24.3</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex justify-between">
+                    <span class="font-bold text-slate-700">Chlorine (Cl)</span>
+                    <span class="text-sky-700 font-bold">35.5</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex justify-between col-span-2">
+                    <span class="font-bold text-slate-700">Calcium (Ca)</span>
+                    <span class="text-sky-700 font-bold">40.1</span>
+                </div>
+            </div>
+            <div class="pt-2">
+                <button id="btn-ok-ram" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 rounded-xl text-sm transition">
+                    Got It
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        /**
+         * HKDSE Relative Atomic Masses (HKEAA Standard)
+         */
+        const RAM = {
+            H: 1.0,
+            C: 12.0,
+            N: 14.0,
+            O: 16.0,
+            Mg: 24.3,
+            Cl: 35.5,
+            Ca: 40.1
+        };
+
+        /**
+         * Reaction Presets Configuration
+         */
+        const PRESETS = {
+            haber: {
+                id: 'haber',
+                name: 'Haber Process',
+                equationHTML: 'N₂(g) + 3H₂(g) → 2NH₃(g)',
+                ratioText: '1 : 3 → 2',
+                reactantA: {
+                    formula: 'N₂',
+                    fullLabel: 'Nitrogen, N₂(g)',
+                    coeff: 1,
+                    molarMass: 2 * RAM.N, // 28.0
+                    color: '#3b82f6', // Blue
+                    borderColor: '#93c5fd',
+                    type: 'diatomic'
+                },
+                reactantB: {
+                    formula: 'H₂',
+                    fullLabel: 'Hydrogen, H₂(g)',
+                    coeff: 3,
+                    molarMass: 2 * RAM.H, // 2.0
+                    color: '#10b981', // Emerald
+                    borderColor: '#6ee7b7',
+                    type: 'diatomic_small'
+                },
+                product: {
+                    formula: 'NH₃',
+                    fullLabel: 'Ammonia, NH₃(g)',
+                    coeff: 2,
+                    molarMass: RAM.N + 3 * RAM.H, // 17.0
+                    color: '#f59e0b', // Amber
+                    borderColor: '#fcd34d',
+                    type: 'product_nh3'
+                },
+                defaultA: 2.0,
+                defaultB: 4.5
+            },
+            magnesium: {
+                id: 'magnesium',
+                name: 'Combustion of Magnesium',
+                equationHTML: '2Mg(s) + O₂(g) → 2MgO(s)',
+                ratioText: '2 : 1 → 2',
+                reactantA: {
+                    formula: 'Mg',
+                    fullLabel: 'Magnesium, Mg(s)',
+                    coeff: 2,
+                    molarMass: RAM.Mg, // 24.3
+                    color: '#94a3b8', // Metallic Slate
+                    borderColor: '#e2e8f0',
+                    type: 'monatomic_metal'
+                },
+                reactantB: {
+                    formula: 'O₂',
+                    fullLabel: 'Oxygen, O₂(g)',
+                    coeff: 1,
+                    molarMass: 2 * RAM.O, // 32.0
+                    color: '#ef4444', // Red
+                    borderColor: '#fca5a5',
+                    type: 'diatomic'
+                },
+                product: {
+                    formula: 'MgO',
+                    fullLabel: 'Magnesium oxide, MgO(s)',
+                    coeff: 2,
+                    molarMass: RAM.Mg + RAM.O, // 40.3
+                    color: '#f8fafc', // White ionic solid
+                    borderColor: '#38bdf8',
+                    type: 'product_mgo'
+                },
+                defaultA: 3.0,
+                defaultB: 2.0
+            },
+            carbonate: {
+                id: 'carbonate',
+                name: 'Acid-Carbonate Gas Evolution',
+                equationHTML: 'CaCO₃(s) + 2HCl(aq) → CaCl₂(aq) + H₂O(l) + CO₂(g)',
+                ratioText: '1 : 2 → 1 (CO₂)',
+                reactantA: {
+                    formula: 'CaCO₃',
+                    fullLabel: 'Calcium carbonate, CaCO₃(s)',
+                    coeff: 1,
+                    molarMass: RAM.Ca + RAM.C + 3 * RAM.O, // 100.1
+                    color: '#a855f7', // Purple
+                    borderColor: '#d8b4fe',
+                    type: 'polyatomic'
+                },
+                reactantB: {
+                    formula: 'HCl',
+                    fullLabel: 'Hydrochloric acid, HCl(aq)',
+                    coeff: 2,
+                    molarMass: RAM.H + RAM.Cl, // 36.5
+                    color: '#06b6d4', // Cyan
+                    borderColor: '#67e8f9',
+                    type: 'diatomic_small'
+                },
+                product: {
+                    formula: 'CO₂',
+                    fullLabel: 'Carbon dioxide, CO₂(g)',
+                    coeff: 1,
+                    molarMass: RAM.C + 2 * RAM.O, // 44.0
+                    color: '#f97316', // Orange
+                    borderColor: '#fdba74',
+                    type: 'product_co2'
+                },
+                defaultA: 1.5,
+                defaultB: 4.0
+            }
+        };
+
+        /**
+         * Global Application State
+         */
+        const state = {
+            presetKey: 'haber',
+            molA: 2.0,
+            molB: 4.5,
+            isRunning: false,
+            isFinished: false,
+            mode: 'explore', // 'explore' or 'challenge'
+            challengeAnswered: false,
+            challengeScore: { correct: 0, total: 0 },
+            particles: [],
+            sparks: [],
+            reactionsCompleted: 0,
+            totalPossibleReactions: 0
+        };
+
+        /**
+         * DOM Elements Cache
+         */
+        const els = {
+            presetBtns: document.querySelectorAll('.preset-btn'),
+            equationDisplay: document.getElementById('equation-display'),
+            moleRatioBadge: document.getElementById('mole-ratio-badge'),
+            
+            sliderA: document.getElementById('slider-A'),
+            sliderB: document.getElementById('slider-B'),
+            valA: document.getElementById('val-A'),
+            valB: document.getElementById('val-B'),
+            labelA: document.getElementById('label-A'),
+            labelB: document.getElementById('label-B'),
+            dotA: document.getElementById('dot-A'),
+            dotB: document.getElementById('dot-B'),
+            coeffABadge: document.getElementById('coeff-A-badge'),
+            coeffBBadge: document.getElementById('coeff-B-badge'),
+            massAHint: document.getElementById('mass-A-hint'),
+            massBHint: document.getElementById('mass-B-hint'),
+
+            btnStart: document.getElementById('btn-start-rxn'),
+            btnStartText: document.getElementById('btn-start-text'),
+            btnReset: document.getElementById('btn-reset-rxn'),
+
+            canvas: document.getElementById('reaction-canvas'),
+            canvasWrapper: document.getElementById('canvas-wrapper'),
+            canvasLegend: document.getElementById('canvas-legend'),
+            vesselStatusDot: document.getElementById('vessel-status-dot'),
+            vesselStatusText: document.getElementById('vessel-status-text'),
+            hudReactions: document.getElementById('hud-reactions'),
+            hudMaxReactions: document.getElementById('hud-max-reactions'),
+            hudProductMol: document.getElementById('hud-product-mol'),
+            hudExcessBadge: document.getElementById('hud-excess-badge'),
+
+            resultsDashboard: document.getElementById('results-dashboard'),
+            blurHint: document.getElementById('blur-hint'),
+            cardRatioA: document.getElementById('card-ratio-A'),
+            cardRatioB: document.getElementById('card-ratio-B'),
+            tagA: document.getElementById('tag-A'),
+            tagB: document.getElementById('tag-B'),
+            calcRatioA: document.getElementById('calc-ratio-A'),
+            calcRatioB: document.getElementById('calc-ratio-B'),
+            outLimiting: document.getElementById('out-limiting'),
+            outExcess: document.getElementById('out-excess'),
+            outExcessMass: document.getElementById('out-excess-mass'),
+            outProdMol: document.getElementById('out-prod-mol'),
+            outProdMolar: document.getElementById('out-prod-molar'),
+            outYieldMass: document.getElementById('out-yield-mass'),
+            outYieldFormula: document.getElementById('out-yield-formula'),
+            examWalkthroughSteps: document.getElementById('exam-walkthrough-steps'),
+
+            // Mode & Challenge
+            modeExploreBtn: document.getElementById('mode-explore-btn'),
+            modeChallengeBtn: document.getElementById('mode-challenge-btn'),
+            challengePanel: document.getElementById('challenge-panel'),
+            challengePrompt: document.getElementById('challenge-prompt'),
+            challengeScore: document.getElementById('challenge-score'),
+            challengeLrSelect: document.getElementById('challenge-lr-select'),
+            challengeYieldLabel: document.getElementById('challenge-yield-label'),
+            challengeMassInput: document.getElementById('challenge-mass-input'),
+            btnCheckChallenge: document.getElementById('btn-check-challenge'),
+            btnNewChallenge: document.getElementById('btn-new-challenge'),
+            challengeFeedback: document.getElementById('challenge-feedback'),
+
+            // Modal
+            ramModal: document.getElementById('ram-modal'),
+            btnRamModal: document.getElementById('btn-ram-modal'),
+            btnCloseRam: document.getElementById('btn-close-ram'),
+            btnOkRam: document.getElementById('btn-ok-ram')
+        };
+
+        const ctx = els.canvas.getContext('2d');
+
+        /**
+         * Core Stoichiometric Calculation Engine
+         */
+        function calculateStoichiometry() {
+            const preset = PRESETS[state.presetKey];
+            const nA = state.molA;
+            const nB = state.molB;
+            const cA = preset.reactantA.coeff;
+            const cB = preset.reactantB.coeff;
+            const cP = preset.product.coeff;
+
+            const ratioA = nA / cA;
+            const ratioB = nB / cB;
+
+            let limiting = 'NONE'; // 'A', 'B', 'BOTH', 'ZERO'
+            let reactionExtent = 0; // In moles of reaction unit
+
+            if (nA === 0 && nB === 0) {
+                limiting = 'ZERO';
+                reactionExtent = 0;
+            } else if (nA === 0) {
+                limiting = 'A';
+                reactionExtent = 0;
+            } else if (nB === 0) {
+                limiting = 'B';
+                reactionExtent = 0;
+            } else if (Math.abs(ratioA - ratioB) < 1e-6) {
+                limiting = 'BOTH';
+                reactionExtent = ratioA;
+            } else if (ratioA < ratioB) {
+                limiting = 'A';
+                reactionExtent = ratioA;
+            } else {
+                limiting = 'B';
+                reactionExtent = ratioB;
+            }
+
+            const consumedA = reactionExtent * cA;
+            const consumedB = reactionExtent * cB;
+            const remainA = Math.max(0, nA - consumedA);
+            const remainB = Math.max(0, nB - consumedB);
+            const productMol = reactionExtent * cP;
+            const productMass = productMol * preset.product.molarMass;
+
+            return {
+                preset,
+                nA,
+                nB,
+                cA,
+                cB,
+                cP,
+                ratioA,
+                ratioB,
+                limiting,
+                reactionExtent,
+                remainA,
+                remainB,
+                productMol,
+                productMass
+            };
+        }
+
+        /**
+         * Update All Text Readouts, Cards, and HKDSE Walkthrough
+         */
+        function updateUI() {
+            const calc = calculateStoichiometry();
+            const { preset, nA, nB, cA, cB, cP, ratioA, ratioB, limiting, remainA, remainB, productMol, productMass } = calc;
+
+            // Update Sliders & Labels
+            els.valA.textContent = `${nA.toFixed(1)} mol`;
+            els.valB.textContent = `${nB.toFixed(1)} mol`;
+            els.massAHint.textContent = `Initial Mass: ${(nA * preset.reactantA.molarMass).toFixed(1)} g`;
+            els.massBHint.textContent = `Initial Mass: ${(nB * preset.reactantB.molarMass).toFixed(1)} g`;
+
+            // Update Ratio Comparison Cards
+            els.calcRatioA.textContent = `${nA.toFixed(1)} mol ÷ ${cA} = ${ratioA.toFixed(2)}`;
+            els.calcRatioB.textContent = `${nB.toFixed(1)} mol ÷ ${cB} = ${ratioB.toFixed(2)}`;
+
+            // Reset Card Styles
+            els.cardRatioA.className = 'p-3.5 rounded-xl border-2 transition';
+            els.cardRatioB.className = 'p-3.5 rounded-xl border-2 transition';
+
+            if (limiting === 'ZERO') {
+                els.cardRatioA.classList.add('border-slate-200', 'bg-slate-50');
+                els.cardRatioB.classList.add('border-slate-200', 'bg-slate-50');
+                els.tagA.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700';
+                els.tagB.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700';
+                els.tagA.textContent = 'No Reactant';
+                els.tagB.textContent = 'No Reactant';
+                els.outLimiting.textContent = 'None (0 mol)';
+                els.outExcess.textContent = '0.0 mol';
+                els.outExcessMass.textContent = '0.0 g unreacted';
+            } else if (limiting === 'BOTH') {
+                els.cardRatioA.classList.add('border-emerald-400', 'bg-emerald-50/70');
+                els.cardRatioB.classList.add('border-emerald-400', 'bg-emerald-50/70');
+                els.tagA.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white';
+                els.tagB.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white';
+                els.tagA.textContent = 'Exact Ratio';
+                els.tagB.textContent = 'Exact Ratio';
+                els.outLimiting.textContent = 'Both (Exact)';
+                els.outExcess.textContent = '0.0 mol';
+                els.outExcessMass.textContent = 'No excess left';
+            } else if (limiting === 'A') {
+                els.cardRatioA.classList.add('border-rose-400', 'bg-rose-50/70');
+                els.cardRatioB.classList.add('border-amber-300', 'bg-amber-50/60');
+                els.tagA.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-600 text-white';
+                els.tagB.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white';
+                els.tagA.textContent = 'Smaller → Limiting';
+                els.tagB.textContent = 'Larger → Excess';
+                els.outLimiting.textContent = preset.reactantA.formula;
+                els.outExcess.textContent = `${remainB.toFixed(1)} mol ${preset.reactantB.formula}`;
+                els.outExcessMass.textContent = `${(remainB * preset.reactantB.molarMass).toFixed(1)} g unreacted`;
+            } else {
+                els.cardRatioA.classList.add('border-amber-300', 'bg-amber-50/60');
+                els.cardRatioB.classList.add('border-rose-400', 'bg-rose-50/70');
+                els.tagA.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white';
+                els.tagB.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-600 text-white';
+                els.tagA.textContent = 'Larger → Excess';
+                els.tagB.textContent = 'Smaller → Limiting';
+                els.outLimiting.textContent = preset.reactantB.formula;
+                els.outExcess.textContent = `${remainA.toFixed(1)} mol ${preset.reactantA.formula}`;
+                els.outExcessMass.textContent = `${(remainA * preset.reactantA.molarMass).toFixed(1)} g unreacted`;
+            }
+
+            // Product & Yield Metrics
+            els.outProdMol.textContent = `${productMol.toFixed(2).replace(/\.00$/, '.0')} mol ${preset.product.formula}`;
+            els.outProdMolar.textContent = `Molar mass: ${preset.product.molarMass.toFixed(1)} g/mol`;
+            els.outYieldMass.textContent = `${productMass.toFixed(1)} g`;
+            els.outYieldFormula.textContent = `${productMol.toFixed(2).replace(/\.00$/, '.0')} mol × ${preset.product.molarMass.toFixed(1)} g/mol`;
+
+            // Render Step-by-Step HKDSE Exam Walkthrough
+            renderWalkthrough(calc);
+
+            // Handle Challenge Mode Masking
+            if (state.mode === 'challenge' && !state.challengeAnswered) {
+                els.resultsDashboard.classList.add('blur-md', 'pointer-events-none', 'select-none');
+                els.examWalkthroughSteps.classList.add('blur-md', 'select-none');
+                els.blurHint.classList.remove('hidden');
+            } else {
+                els.resultsDashboard.classList.remove('blur-md', 'pointer-events-none', 'select-none');
+                els.examWalkthroughSteps.classList.remove('blur-md', 'select-none');
+                els.blurHint.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Generate Structured HKDSE Marking Scheme Steps
+         */
+        function renderWalkthrough(calc) {
+            const { preset, nA, nB, cA, cB, cP, ratioA, ratioB, limiting, productMol, productMass, remainA, remainB } = calc;
+
+            if (limiting === 'ZERO') {
+                els.examWalkthroughSteps.innerHTML = `<li class="text-slate-400 italic">Adjust the reactant sliders above 0.0 mol to view the HKDSE step-by-step calculation.</li>`;
+                return;
+            }
+
+            let step1HTML = `
+                <li class="flex gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+                    <div>
+                        <strong class="text-white">Divide moles by stoichiometric coefficients:</strong><br>
+                        <span class="font-mono text-xs text-sky-200">
+                            ${preset.reactantA.formula}: ${nA.toFixed(1)} / ${cA} = ${ratioA.toFixed(2)} &nbsp;|&nbsp; 
+                            ${preset.reactantB.formula}: ${nB.toFixed(1)} / ${cB} = ${ratioB.toFixed(2)}
+                        </span>
+                    </div>
+                </li>
+            `;
+
+            let lrName = limiting === 'A' ? preset.reactantA.formula : (limiting === 'B' ? preset.reactantB.formula : 'Both reactants');
+            let lrExplanation = '';
+            if (limiting === 'BOTH') {
+                lrExplanation = `Both ratios are equal (${ratioA.toFixed(2)}), so reactants are in exact stoichiometric proportion.`;
+            } else if (limiting === 'A') {
+                lrExplanation = `Since ${ratioA.toFixed(2)} &lt; ${ratioB.toFixed(2)}, <strong class="text-rose-400">${preset.reactantA.formula}</strong> is the limiting reactant (${preset.reactantB.formula} is in excess).`;
+            } else {
+                lrExplanation = `Since ${ratioB.toFixed(2)} &lt; ${ratioA.toFixed(2)}, <strong class="text-rose-400">${preset.reactantB.formula}</strong> is the limiting reactant (${preset.reactantA.formula} is in excess).`;
+            }
+
+            let step2HTML = `
+                <li class="flex gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+                    <div>
+                        <strong class="text-white">Identify Limiting Reactant:</strong><br>
+                        ${lrExplanation}
+                    </div>
+                </li>
+            `;
+
+            const lrFormula = limiting === 'B' ? preset.reactantB.formula : preset.reactantA.formula;
+            const lrMol = limiting === 'B' ? nB : nA;
+            const lrCoeff = limiting === 'B' ? cB : cA;
+
+            let step3HTML = `
+                <li class="flex gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+                    <div>
+                        <strong class="text-white">Calculate Moles of ${preset.product.formula} Formed:</strong><br>
+                        <span class="font-mono text-xs text-amber-300">
+                            Mole ratio ${lrFormula} : ${preset.product.formula} = ${lrCoeff} : ${cP}<br>
+                            No. of moles of ${preset.product.formula} = ${lrMol.toFixed(1)} × (${cP}/${lrCoeff}) = ${productMol.toFixed(2).replace(/\.00$/, '.0')} mol
+                        </span>
+                    </div>
+                </li>
+            `;
+
+            let step4HTML = `
+                <li class="flex gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">4</span>
+                    <div>
+                        <strong class="text-white">Calculate Theoretical Mass Yield:</strong><br>
+                        <span class="font-mono text-xs text-emerald-300">
+                            Mass = ${productMol.toFixed(2).replace(/\.00$/, '.0')} mol × ${preset.product.molarMass.toFixed(1)} g mol⁻¹ = <strong>${productMass.toFixed(1)} g</strong>
+                        </span>
+                    </div>
+                </li>
+            `;
+
+            els.examWalkthroughSteps.innerHTML = step1HTML + step2HTML + step3HTML + step4HTML;
+        }
+
+        /**
+         * Particle Simulation & Canvas Rendering Engine
+         * Scale: 1 visual particle = 0.5 mol
+         */
+        function initParticles() {
+            const preset = PRESETS[state.presetKey];
+            const calc = calculateStoichiometry();
+
+            state.particles = [];
+            state.sparks = [];
+            state.isRunning = false;
+            state.isFinished = false;
+            state.reactionsCompleted = 0;
+
+            // Each particle represents 0.5 mol
+            const countA = Math.round(state.molA / 0.5);
+            const countB = Math.round(state.molB / 0.5);
+
+            // Calculate discrete reaction events possible with 0.5 mol packets
+            const maxEventsA = Math.floor(countA / preset.reactantA.coeff);
+            const maxEventsB = Math.floor(countB / preset.reactantB.coeff);
+            state.totalPossibleReactions = Math.min(maxEventsA, maxEventsB);
+
+            const width = els.canvas.width || 600;
+            const height = els.canvas.height || 350;
+            const pad = 28;
+
+            // Spawn Reactant A particles
+            for (let i = 0; i < countA; i++) {
+                state.particles.push(createParticle('A', preset.reactantA, width, height, pad));
+            }
+
+            // Spawn Reactant B particles
+            for (let i = 0; i < countB; i++) {
+                state.particles.push(createParticle('B', preset.reactantB, width, height, pad));
+            }
+
+            // Update HUD & Buttons
+            els.hudReactions.textContent = '0';
+            els.hudMaxReactions.textContent = state.totalPossibleReactions;
+            els.hudProductMol.textContent = '0.0 mol';
+            els.hudExcessBadge.classList.add('hidden');
+
+            els.vesselStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+            els.vesselStatusText.textContent = 'Ready — Reactants Mixed in Vessel';
+            els.btnStart.disabled = state.totalPossibleReactions === 0;
+            els.btnStartText.textContent = state.totalPossibleReactions === 0 ? 'Insufficient Reactants' : 'Start Reaction';
+            els.btnStart.className = state.totalPossibleReactions === 0
+                ? 'col-span-2 bg-slate-300 text-slate-500 font-bold py-3 px-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-2 text-sm'
+                : 'col-span-2 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white font-bold py-3 px-4 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm';
+
+            // Update Canvas Legend
+            els.canvasLegend.innerHTML = `
+                <span class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full inline-block" style="background:${preset.reactantA.color}"></span>
+                    <span>${preset.reactantA.formula} (${countA})</span>
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full inline-block" style="background:${preset.reactantB.color}"></span>
+                    <span>${preset.reactantB.formula} (${countB})</span>
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full inline-block" style="background:${preset.product.color}"></span>
+                    <span>${preset.product.formula}</span>
+                </span>
+            `;
+        }
+
+        function createParticle(role, spec, width, height, pad, xOverride = null, yOverride = null) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = role === 'PRODUCT' ? 1.1 + Math.random() * 0.8 : 1.6 + Math.random() * 1.2;
+            return {
+                role, // 'A', 'B', or 'PRODUCT'
+                formula: spec.formula,
+                color: spec.color,
+                borderColor: spec.borderColor,
+                type: spec.type,
+                x: xOverride !== null ? xOverride : pad + Math.random() * (width - pad * 2),
+                y: yOverride !== null ? yOverride : pad + Math.random() * (height - pad * 2),
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                radius: role === 'PRODUCT' ? 14 : (spec.type === 'diatomic_small' ? 9 : 12),
+                rotation: Math.random() * Math.PI * 2,
+                vRot: (Math.random() - 0.5) * 0.06,
+                scale: role === 'PRODUCT' ? 0.2 : 1.0 // Pop-in animation for newly formed products
+            };
+        }
+
+        /**
+         * Draw Stylized Molecular Structures on Canvas
+         */
+        function drawMolecule(p) {
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.scale(p.scale, p.scale);
+            ctx.rotate(p.rotation);
+
+            if (p.type === 'diatomic' || p.type === 'diatomic_small') {
+                const r = p.type === 'diatomic_small' ? 6 : 8.5;
+                const offset = r * 0.72;
+                // Bond line
+                ctx.strokeStyle = p.borderColor;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(-offset, 0);
+                ctx.lineTo(offset, 0);
+                ctx.stroke();
+
+                // Left & Right Atoms
+                [-offset, offset].forEach(ox => {
+                    ctx.beginPath();
+                    ctx.arc(ox, 0, r, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeStyle = p.borderColor;
+                    ctx.stroke();
+                });
+            } else if (p.type === 'monatomic_metal') {
+                // Metallic Hexagon/Circle
+                ctx.beginPath();
+                ctx.arc(0, 0, 11, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = p.borderColor;
+                ctx.stroke();
+            } else if (p.type === 'polyatomic') {
+                // CaCO3 cluster
+                ctx.beginPath();
+                ctx.arc(0, 0, 13, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = p.borderColor;
+                ctx.stroke();
+            } else if (p.type === 'product_nh3') {
+                // Central N with 3 H atoms
+                const angles = [0, (2 * Math.PI) / 3, (4 * Math.PI) / 3];
+                angles.forEach(a => {
+                    ctx.beginPath();
+                    ctx.arc(Math.cos(a) * 9, Math.sin(a) * 9, 5, 0, Math.PI * 2);
+                    ctx.fillStyle = '#6ee7b7';
+                    ctx.fill();
+                });
+                ctx.beginPath();
+                ctx.arc(0, 0, 8.5, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            } else if (p.type === 'product_mgo') {
+                // Ionic pair Mg2+ O2-
+                ctx.beginPath();
+                ctx.arc(-5, 0, 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#cbd5e1';
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(6, 0, 9, 0, Math.PI * 2);
+                ctx.fillStyle = '#f8fafc';
+                ctx.fill();
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            } else if (p.type === 'product_co2') {
+                // Linear O=C=O
+                [-10, 10].forEach(ox => {
+                    ctx.beginPath();
+                    ctx.arc(ox, 0, 6.5, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ef4444';
+                    ctx.fill();
+                });
+                ctx.beginPath();
+                ctx.arc(0, 0, 7.5, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+
+            ctx.restore();
+
+            // Draw crisp formula label slightly below particle
+            ctx.save();
+            ctx.font = '700 10px "JetBrains Mono", monospace';
+            ctx.fillStyle = p.role === 'PRODUCT' ? '#fde68a' : 'rgba(255,255,255,0.85)';
+            ctx.textAlign = 'center';
+            ctx.fillText(p.formula, p.x, p.y + p.radius + 10);
+            ctx.restore();
+        }
+
+        /**
+         * Trigger a Stoichiometric Collision Reaction Event
+         * Consumes coeffA particles of A and coeffB particles of B near a collision site,
+         * and spawns coeffP particles of Product!
+         */
+        function attemptReactionStep() {
+            const preset = PRESETS[state.presetKey];
+            const cA = preset.reactantA.coeff;
+            const cB = preset.reactantB.coeff;
+            const cP = preset.product.coeff;
+
+            const listA = state.particles.filter(p => p.role === 'A');
+            const listB = state.particles.filter(p => p.role === 'B');
+
+            if (listA.length < cA || listB.length < cB) {
+                finishReaction();
+                return;
+            }
+
+            // Find closest pair of A and B to trigger a realistic localized collision
+            let bestA = listA[0];
+            let bestB = listB[0];
+            let minDist = Infinity;
+
+            for (let i = 0; i < listA.length; i++) {
+                for (let j = 0; j < listB.length; j++) {
+                    const dx = listA[i].x - listB[j].x;
+                    const dy = listA[i].y - listB[j].y;
+                    const d = dx * dx + dy * dy;
+                    if (d < minDist) {
+                        minDist = d;
+                        bestA = listA[i];
+                        bestB = listB[j];
+                    }
+                }
+            }
+
+            // Trigger reaction when close enough (or force-assist if particles are drifting apart)
+            const collisionThreshold = 95 * 95;
+            if (minDist > collisionThreshold) {
+                // Gently steer bestA and bestB toward each other so reactions complete smoothly
+                const angle = Math.atan2(bestB.y - bestA.y, bestB.x - bestA.x);
+                bestA.vx = Math.cos(angle) * 3.5;
+                bestA.vy = Math.sin(angle) * 3.5;
+                bestB.vx = -Math.cos(angle) * 3.5;
+                bestB.vy = -Math.sin(angle) * 3.5;
+                return;
+            }
+
+            // Select required stoichiometric packet of A and B closest to reaction center
+            const cx = (bestA.x + bestB.x) / 2;
+            const cy = (bestA.y + bestB.y) / 2;
+
+            const chosenA = listA
+                .sort((p1, p2) => ((p1.x - cx) ** 2 + (p1.y - cy) ** 2) - ((p2.x - cx) ** 2 + (p2.y - cy) ** 2))
+                .slice(0, cA);
+            const chosenB = listB
+                .sort((p1, p2) => ((p1.x - cx) ** 2 + (p1.y - cy) ** 2) - ((p2.x - cx) ** 2 + (p2.y - cy) ** 2))
+                .slice(0, cB);
+
+            const toRemove = new Set([...chosenA, ...chosenB]);
+            state.particles = state.particles.filter(p => !toRemove.has(p));
+
+            // Spawn Product particles (0.5 mol each)
+            const width = els.canvas.width;
+            const height = els.canvas.height;
+            for (let k = 0; k < cP; k++) {
+                const offsetX = (k - (cP - 1) / 2) * 18;
+                state.particles.push(createParticle('PRODUCT', preset.product, width, height, 28, cx + offsetX, cy));
+            }
+
+            // Add visual reaction flash spark
+            state.sparks.push({ x: cx, y: cy, radius: 6, alpha: 1.0 });
+
+            state.reactionsCompleted++;
+            const formedMol = state.reactionsCompleted * cP * 0.5;
+            els.hudReactions.textContent = state.reactionsCompleted;
+            els.hudProductMol.textContent = `${formedMol.toFixed(1)} mol`;
+
+            if (state.reactionsCompleted >= state.totalPossibleReactions) {
+                finishReaction();
+            }
+        }
+
+        function finishReaction() {
+            state.isRunning = false;
+            state.isFinished = true;
+            els.vesselStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
+            els.vesselStatusText.textContent = 'Reaction Complete — Limiting Reactant Consumed';
+            els.btnStartText.textContent = 'Reaction Complete';
+            els.btnStart.disabled = true;
+            els.btnStart.className = 'col-span-2 bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl cursor-default flex items-center justify-center gap-2 text-sm';
+
+            // Check if excess particles remain
+            const remainingReactants = state.particles.filter(p => p.role === 'A' || p.role === 'B');
+            if (remainingReactants.length > 0) {
+                els.hudExcessBadge.classList.remove('hidden');
+                els.hudExcessBadge.textContent = `${(remainingReactants.length * 0.5).toFixed(1)} mol ${remainingReactants[0].formula} remains unreacted in excess!`;
+            }
+        }
+
+        /**
+         * Main 60fps Canvas Animation Loop
+         */
+        function animateLoop() {
+            const width = els.canvas.width;
+            const height = els.canvas.height;
+
+            // Clear background with subtle lab chamber gradient
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw faint chamber grid lines
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.07)';
+            ctx.lineWidth = 1;
+            const step = 32;
+            for (let x = 0; x < width; x += step) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < height; y += step) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+
+            // Update & Render Sparks
+            for (let i = state.sparks.length - 1; i >= 0; i--) {
+                const s = state.sparks[i];
+                s.radius += 2.2;
+                s.alpha -= 0.045;
+                if (s.alpha <= 0) {
+                    state.sparks.splice(i, 1);
+                    continue;
+                }
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(251, 191, 36, ${s.alpha})`;
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // Move & Bounce Particles
+            const pad = 22;
+            for (const p of state.particles) {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.rotation += p.vRot;
+                if (p.scale < 1.0) {
+                    p.scale = Math.min(1.0, p.scale + 0.08);
+                }
+
+                if (p.x < pad) { p.x = pad; p.vx *= -1; }
+                if (p.x > width - pad) { p.x = width - pad; p.vx *= -1; }
+                if (p.y < pad) { p.y = pad; p.vy *= -1; }
+                if (p.y > height - pad - 8) { p.y = height - pad - 8; p.vy *= -1; }
+
+                drawMolecule(p);
+            }
+
+            // Process reaction steps while running
+            if (state.isRunning) {
+                attemptReactionStep();
+            }
+
+            requestAnimationFrame(animateLoop);
+        }
+
+        /**
+         * Responsive Canvas Resizing
+         */
+        function resizeCanvas() {
+            const rect = els.canvasWrapper.getBoundingClientRect();
+            els.canvas.width = rect.width;
+            els.canvas.height = rect.height;
+        }
+
+        /**
+         * Switch Active Reaction Preset
+         */
+        function selectPreset(key) {
+            state.presetKey = key;
+            const preset = PRESETS[key];
+
+            // Update preset button visual states
+            els.presetBtns.forEach(btn => {
+                const isSelected = btn.dataset.preset === key;
+                const badge = btn.querySelector('span');
+                if (isSelected) {
+                    btn.className = 'preset-btn active-preset text-left px-3.5 py-2.5 rounded-xl border-2 border-sky-600 bg-sky-50/70 transition flex items-start gap-2.5';
+                    badge.className = 'w-6 h-6 rounded-full bg-sky-600 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5';
+                } else {
+                    btn.className = 'preset-btn text-left px-3.5 py-2.5 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white transition flex items-start gap-2.5';
+                    badge.className = 'w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5';
+                }
+            });
+
+            // Update Equation Banner & Reactant Controls
+            els.equationDisplay.textContent = preset.equationHTML;
+            els.moleRatioBadge.innerHTML = `Stoichiometric Mole Ratio: <span class="text-amber-300 font-mono font-bold">${preset.ratioText}</span>`;
+
+            els.labelA.textContent = preset.reactantA.fullLabel;
+            els.labelB.textContent = preset.reactantB.fullLabel;
+            els.dotA.style.backgroundColor = preset.reactantA.color;
+            els.dotB.style.backgroundColor = preset.reactantB.color;
+            els.coeffABadge.textContent = `Coeff: ${preset.reactantA.coeff}`;
+            els.coeffBBadge.textContent = `Coeff: ${preset.reactantB.coeff}`;
+
+            // Update Challenge Dropdown Options
+            els.challengeLrSelect.innerHTML = `
+                <option value="">-- Select --</option>
+                <option value="A">${preset.reactantA.formula}</option>
+                <option value="B">${preset.reactantB.formula}</option>
+                <option value="BOTH">Exact Stoichiometric (Both)</option>
+            `;
+            els.challengeYieldLabel.textContent = `2. Mass of ${preset.product.formula} (g)`;
+
+            // Reset default moles for preset
+            state.molA = preset.defaultA;
+            state.molB = preset.defaultB;
+            els.sliderA.value = state.molA;
+            els.sliderB.value = state.molB;
+
+            if (state.mode === 'challenge') {
+                generateChallenge();
+            } else {
+                updateUI();
+                initParticles();
+            }
+        }
+
+        /**
+         * Challenge Mode Problem Generator & Verification
+         */
+        function generateChallenge() {
+            const preset = PRESETS[state.presetKey];
+            // Pick random non-zero 0.5-step quantities between 1.0 and 8.0 mol
+            const steps = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 6.0, 7.5, 8.0];
+            state.molA = steps[Math.floor(Math.random() * steps.length)];
+            state.molB = steps[Math.floor(Math.random() * steps.length)];
+            state.challengeAnswered = false;
+
+            els.sliderA.value = state.molA;
+            els.sliderB.value = state.molB;
+            els.sliderA.disabled = true;
+            els.sliderB.disabled = true;
+
+            els.challengeLrSelect.value = '';
+            els.challengeMassInput.value = '';
+            els.challengeFeedback.classList.add('hidden');
+
+            els.challengePrompt.innerHTML = `
+                Suppose <strong class="font-mono text-slate-900">${state.molA.toFixed(1)} mol</strong> of <strong>${preset.reactantA.formula}</strong> is mixed with 
+                <strong class="font-mono text-slate-900">${state.molB.toFixed(1)} mol</strong> of <strong>${preset.reactantB.formula}</strong>. 
+                Identify the limiting reactant and calculate the theoretical mass of <strong>${preset.product.formula}</strong> formed (to 1 d.p.).
+            `;
+
+            updateUI();
+            initParticles();
+        }
+
+        function checkChallengeAnswer() {
+            const userLR = els.challengeLrSelect.value;
+            const userMass = parseFloat(els.challengeMassInput.value);
+
+            if (!userLR || isNaN(userMass)) {
+                els.challengeFeedback.className = 'sm:col-span-3 text-xs font-semibold p-2.5 rounded-lg bg-rose-100 text-rose-800 border border-rose-300 block';
+                els.challengeFeedback.textContent = 'Please select a limiting reactant and enter your calculated product mass before checking.';
+                return;
+            }
+
+            const calc = calculateStoichiometry();
+            const isLrCorrect = userLR === calc.limiting;
+            const isMassCorrect = Math.abs(userMass - calc.productMass) <= 0.25; // Allow +/- 0.2g rounding tolerance
+
+            state.challengeAnswered = true;
+            state.challengeScore.total++;
+
+            if (isLrCorrect && isMassCorrect) {
+                state.challengeScore.correct++;
+                els.challengeFeedback.className = 'sm:col-span-3 text-xs font-semibold p-3 rounded-lg bg-emerald-100 text-emerald-900 border border-emerald-300 block';
+                els.challengeFeedback.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> <strong>Full Marks (2/2)!</strong> Spot on! ${calc.limiting === 'BOTH' ? 'Exact stoichiometric ratio' : (calc.limiting === 'A' ? calc.preset.reactantA.formula : calc.preset.reactantB.formula)} is limiting, yielding <strong>${calc.productMass.toFixed(1)} g</strong> of ${calc.preset.product.formula}. Watch the reaction run below!`;
+            } else {
+                const actualLRText = calc.limiting === 'BOTH' ? 'Exact Stoichiometric (Both)' : (calc.limiting === 'A' ? calc.preset.reactantA.formula : calc.preset.reactantB.formula);
+                els.challengeFeedback.className = 'sm:col-span-3 text-xs font-semibold p-3 rounded-lg bg-rose-100 text-rose-900 border border-rose-300 block';
+                els.challengeFeedback.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 mr-1"></i> <strong>Review Step-by-Step Solution:</strong> The correct limiting reactant is <strong>${actualLRText}</strong> and theoretical yield is <strong>${calc.productMass.toFixed(1)} g</strong>. Check the unlocked HKDSE walkthrough below!`;
+            }
+
+            els.challengeScore.textContent = `Score: ${state.challengeScore.correct} / ${state.challengeScore.total}`;
+            updateUI();
+
+            // Automatically trigger the molecular animation so the student sees the result visually!
+            if (state.totalPossibleReactions > 0 && !state.isRunning && !state.isFinished) {
+                startReaction();
+            }
+        }
+
+        function startReaction() {
+            if (state.totalPossibleReactions === 0 || state.isFinished) return;
+            state.isRunning = true;
+            els.vesselStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping';
+            els.vesselStatusText.textContent = 'Reacting — Molecules Colliding...';
+            els.btnStartText.textContent = 'Reacting...';
+            els.btnStart.disabled = true;
+        }
+
+        /**
+         * Event Listeners Setup
+         */
+        function bindEvents() {
+            // Preset buttons
+            els.presetBtns.forEach(btn => {
+                btn.addEventListener('click', () => selectPreset(btn.dataset.preset));
+            });
+
+            // Sliders
+            els.sliderA.addEventListener('input', (e) => {
+                state.molA = parseFloat(e.target.value);
+                updateUI();
+                initParticles();
+            });
+
+            els.sliderB.addEventListener('input', (e) => {
+                state.molB = parseFloat(e.target.value);
+                updateUI();
+                initParticles();
+            });
+
+            // Start & Reset
+            els.btnStart.addEventListener('click', startReaction);
+            els.btnReset.addEventListener('click', () => {
+                initParticles();
+            });
+
+            // Mode Switchers
+            els.modeExploreBtn.addEventListener('click', () => {
+                state.mode = 'explore';
+                state.challengeAnswered = false;
+                els.sliderA.disabled = false;
+                els.sliderB.disabled = false;
+                els.modeExploreBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-600 text-white shadow-sm transition';
+                els.modeChallengeBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition';
+                els.challengePanel.classList.add('hidden');
+                updateUI();
+                initParticles();
+            });
+
+            els.modeChallengeBtn.addEventListener('click', () => {
+                state.mode = 'challenge';
+                els.modeChallengeBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-slate-950 shadow-sm transition';
+                els.modeExploreBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition';
+                els.challengePanel.classList.remove('hidden');
+                generateChallenge();
+            });
+
+            // Challenge Actions
+            els.btnCheckChallenge.addEventListener('click', checkChallengeAnswer);
+            els.btnNewChallenge.addEventListener('click', generateChallenge);
+
+            // RAM Modal Controls
+            els.btnRamModal.addEventListener('click', () => els.ramModal.classList.remove('hidden'));
+            els.btnCloseRam.addEventListener('click', () => els.ramModal.classList.add('hidden'));
+            els.btnOkRam.addEventListener('click', () => els.ramModal.classList.add('hidden'));
+            els.ramModal.addEventListener('click', (e) => {
+                if (e.target === els.ramModal) els.ramModal.classList.add('hidden');
+            });
+
+            // Responsive Canvas Resize
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                if (!state.isRunning) initParticles();
+            });
+        }
+
+        /**
+         * Initialize Application on Window Load
+         */
+        window.onload = function () {
+            resizeCanvas();
+            bindEvents();
+            selectPreset('haber');
+            animateLoop();
+        };
+    </script>
+</body>
+</html>
